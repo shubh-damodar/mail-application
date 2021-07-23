@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html>
+
+
+<head>
+
+	<!-- <base href="file:///android_asset/flutter_assets/assets/"> -->
+	<meta charset="utf-8">
+	<title>CKEditor</title>
+	<script src="./ckeditor/ckeditor.js"></script>
+</head>
+
+<body style="margin: 0; padding: 0;">
+	<textarea style="visibility: hidden" name="content" id="editor1"></textarea>
+
+
+	<script>
+		//# sourceMappingURL=ckeditor.js.map
+
+		var currentInstance;
+
+		setTimeout(() => {
+			// Toaster.postMessage("init fired")
+			var editorEle = CKEDITOR.replace('editor1', {
+				placeholder: "Your content here...",
+				removePlugins: 'elementspath,save,flash,iframe,smiley,find,pagebreak,templates,about,maximize,showblocks,newpage,language,source,Maximize',
+				removeButtons: 'Copy,Cut,Paste,Undo,Redo,Source,Print,Form,TextField,Textarea,Button,SelectAll,CreateDiv,Table,PasteText,PasteFromWord,Select,HiddenField,Maximize'
+			});
+
+
+			 CKEDITOR.instances['editor1'].on('change',  () => {
+			 console.log("TEST");
+				CkContentUpdate.postMessage(CKEDITOR.instances['editor1'].getData());
+			});
+
+
+
+			_addImageUploadBtn(CKEDITOR.instances['editor1'])
+			// }
+		}, 3000);
+
+
+		function insertImage(filePath) {
+			Toaster.postMessage(filePath)
+			CKEDITOR.instances['editor1'].insertHtml(`<img title="Double click to resize" style="max-width: 100%;" alt="" src="` + filePath + ` "></img>`);
+		}
+
+		function insertContent(content) {
+			Toaster.postMessage("recvd content ");
+		Toaster.postMessage(content);
+			CKEDITOR.instances['editor1'].setData(content);
+
+	//	document.getElementsByClassName('cke_wysiwyg_div')[0].innerHTML = content;
+		}
+
+		function appendContent(content) {
+			// Toaster.postMessage("called from flutter")
+			CKEDITOR.instances['editor1'].insertHtml(content);
+		}
+
+
+		function _addImageUploadBtn(ckEditor) {
+
+			const editor = ckEditor;
+
+			if (!editor) {
+				return;
+			}
+
+			CkEditorReady.postMessage(true);
+			editor.addCommand('uploadImage', {
+				exec: (editor) => {
+					// Remove img input.
+
+					CkImage.postMessage("select");
+					[].slice.apply(document.querySelectorAll('.cke_button__image')).forEach((img) => {
+						img.remove();
+					});
+					// const input = document.createElement('input');
+					// input.setAttribute('type', 'file');
+					// input.setAttribute('class', 'ck-editor-upload-img');
+					// input.style.display = 'none';
+					// input.addEventListener(
+					// 	'change',
+					// 	async e => {
+					// 		const file = (e.target).files[0];
+					// 		if (file) {
+					// 			// do upload then insert img link to editor
+
+					// 			try {
+
+					// 				const filepath = await this.uploadImage(file);
+					// 				editor.insertHtml(`<img title="Double click to resize" style="max-width: 100%;" alt="" src="${filepath}"></img>`);
+
+					// 			} catch (error) {
+					// 				console.log(error);
+					// 			}
+
+
+					// 		}
+					// 	},
+					// 	false
+					// );
+					// document.body.appendChild(input);
+					// input.click();
+				}
+			});
+			editor.ui.addButton('uploadImage', {
+				icon: 'https://cdn2.iconfinder.com/data/icons/picons-essentials/71/gallery-512.png',
+				label: 'Upload Image',
+				command: 'uploadImage',
+				toolbar: 'insert'
+			});
+		}
+	</script>
+</body>
+
+</html>
